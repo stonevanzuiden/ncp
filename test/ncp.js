@@ -37,7 +37,7 @@ describe('ncp', function () {
     describe('when copying files using filter', function () {
       before(function (cb) {
         var filter = function(name) {
-          return name.substr(name.length - 1) != 'a';
+          return !['a', 'g', 'rename'].includes(name.split('/').pop());
         };
         rimraf(out, function () {
           ncp(src, out, {filter: filter}, cb);
@@ -48,6 +48,9 @@ describe('ncp', function () {
         readDirFiles(src, 'utf8', function (srcErr, srcFiles) {
           function filter(files) {
             for (var fileName in files) {
+              if (['rename'].includes(fileName)) {
+                delete files[fileName]
+              }
               var curFile = files[fileName];
               if (curFile instanceof Object)
                 return filter(curFile);
@@ -89,6 +92,34 @@ describe('ncp', function () {
     });
 
     describe('when using rename', function() {
+
+      before(function (cb) {
+        rimraf(out, function() {
+          ncp(src, out, cb);
+        });
+      });
+
+      it('output directory is correctly redirected', function(cb) {
+        ncp(src, out, {
+          rename: function(target) {
+            var cxt = {
+              rename: 'renamed'
+            }
+            return target.replace(/{{(.*)}}/, function(match, p1) { return cxt[p1]; });
+          }
+        }, function(err) {
+          if(err) return cb(err);
+
+          readDirFiles(src, 'utf8', function (srcErr, srcFiles) {
+            readDirFiles(out, 'utf8', function (outErr, outFiles) {
+              assert.ifError(srcErr);
+              assert.deepEqual(srcFiles['{{rename}}'], outFiles.renamed);
+              cb();
+            });
+          });
+        });
+      });
+
       it('output files are correctly redirected', function(cb) {
         ncp(src, out, {
           rename: function(target) {

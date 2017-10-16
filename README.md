@@ -20,7 +20,7 @@ If there are no errors, `ncp` will output `done.` when complete.  If there are e
 
 ## Programmatic usage
 
-Programmatic usage of `ncp` is just as simple.  The only argument to the completion callback is a possible error.  
+Programmatic usage of `ncp` is just as simple.  The only argument to the completion callback is a possible error.
 
 ```javascript
 var ncp = require('ncp').ncp;
@@ -35,7 +35,7 @@ ncp(source, destination, function (err) {
 });
 ```
 
-You can also call ncp like `ncp(source, destination, options, callback)`. 
+You can also call ncp like `ncp(source, destination, options, callback)`.
 `options` should be a dictionary. Currently, such options are available:
 
   * `options.filter` - a `RegExp` instance, against which each file name is
@@ -46,7 +46,10 @@ You can also call ncp like `ncp(source, destination, options, callback)`.
   * `options.transform` - a function: `function (read, write) { read.pipe(write) }`
   used to apply streaming transforms while copying.
 
-  * `options.clobber` - boolean=true. if set to false, `ncp` will not overwrite 
+  * `options.rename` - a function: `function (target) { return target }`
+  used to rename a file or directory while copying.
+
+  * `options.clobber` - boolean=true. if set to false, `ncp` will not overwrite
   destination files that already exist.
 
   * `options.dereference` - boolean=false. If set to true, `ncp` will follow symbolic
